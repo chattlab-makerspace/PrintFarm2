@@ -1,0 +1,25 @@
+[server]
+host: 0.0.0.0
+port: {{item.port}}
+enable_debug_logging: False
+klippy_uds_address: /tmp/klippy_{{item.name}}.sock
+
+[authorization]
+enabled: True
+trusted_clients:
+# Enter your client IP here or range here
+ 192.168.1.0/24
+cors_domains:
+# Allow CORS requests for Fluidd
+ http://app.fluidd.xyz
+
+# Enable OctoPrint compatibility for Slicer uploads
+# Supports Cura, Slic3r, and Slic3r dervivatives
+# (PrusaSlicer, SuperSlicer)
+[octoprint_compat]
+# Default webcam config values:
+# flip_h = false
+# flip_v = false
+# rotate_90 = false
+# stream_url = /webcam/?action=stream
+# webcam_enabled = true

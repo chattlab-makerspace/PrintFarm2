@@ -1,0 +1,103 @@
+---
+- name: Install Klipper
+  hosts: klipper
+  remote_user: klipper
+  gather_facts: no
+
+  vars:
+    printers: 
+      - name: printer1
+        port: 7125
+      - name: printer2
+        port: 7126
+    HOME: /home/klipper
+    KLIPPER_USER: klipper
+    SRCDIR: /home/klipper/klipper
+    PYTHONDIR: /home/klipper/klipper-env/bin
+
+  tasks:
+    - name: Install dependencies
+      become: yes
+      apt:
+        state: latest
+        name:
+          - virtualenv
+          - python3-dev
+          - libffi-dev
+          - build-essential
+          - python3-setuptools
+          - python3-pip
+          - git
+
+    - name: Clone klipper source
+      git:
+        repo: https://github.com/Klipper3d/klipper
+        dest: "{{HOME}}/klipper"
+        version: ffb5105b559da8da74bb8d8996da91f3171447e7
+
+    - name: Create Klipper virtualenv
+      pip:
+        virtualenv: "{{HOME}}/klipper-env"
+        requirements: https://raw.githubusercontent.com/Klipper3d/klipper/master/scripts/klippy-requirements.txt
+        state: latest
+
+    - name: Add klipper user to dialout group
+      become: yes
+      user:
+        name: klipper
+        groups: dialout
+        append: yes
+
+    - name: Create klipper service
+      become: yes
+      shell: |
+        cat << EOF > /etc/systemd/system/klipper@.service
+        [Unit]
+        Description=Starts klipper on startup
+        After=network.target
+
+        [Install]
+        WantedBy=multi-user.target
+
+        [Service]
+        Type=simple
+        User=klipper
+        RemainAfterExit=yes
+        ExecStart=${PYTHONDIR}/python ${SRCDIR}/klippy/klippy.py ${HOME}/%i/printer.cfg -l /tmp/klippy_%i.log -a /tmp/klippy_%i.sock
+        EOF
+
+    - name: Install Moonraker
+      pip:
+        name: moonraker
+        virtualenv: "{{HOME}}/klipper-env"
+        state: latest
+
+    - name: Create moonraker service
+      become: yes
+      shell: |
+        cat << EOF > /etc/systemd/system/moonraker@.service
+        [Unit]
+        Description=Starts moonraker on startup
+        After=network.target
+
+        [Install]
+        WantedBy=multi-user.target
+
+        [Service]
+        Type=simple
+        User=klipper
+        RemainAfterExit=yes
+        ExecStart=${PYTHONDIR}/python -m moonraker -c ${HOME}/%i/moonraker.conf
+        EOF
+
+    - name: Create printer config directories
+      file:
+        path: "{{HOME}}/{{item.name}}"
+        state: directory
+      with_items: '{{ printers }}'
+
+    - name: Create moonraker configs
+      template:
+        src: moonraker.conf.j2
+        dest: "{{HOME}}/{{item.name}}/moonraker.conf"
+      with_items: '{{ printers }}'
