@@ -11,7 +11,8 @@ The planned setup will run Klipper and Moonraker (an API that exposes Klipper) o
 # Installing Debian on a Klipper computer
 
 1. Download this repo via the green **Code** button (upper right) and then **Download ZIP** and extract.
-1. Grab the current Debian Bookworm iso for AMD64 here: https://www.debian.org/download 
+1. Grab the current Debian Bookworm iso for AMD64 here: https://www.debian.org/download
+1. Hit ESC to enter the boot menu.
 1. Start a webserver on your machine from the root of the extracted zip like this: `python3 -m http.server`
 1. Make note of the port it auto-selected (will usually be 8000) and your device's IP address. 
 1. Create a bootable USB drive from the Debian ISO with [RUFUS](https://rufus.ie/en/) or [Balena Etcher](https://github.com/balena-io/etcher).
