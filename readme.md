@@ -27,7 +27,7 @@ The planned setup will run Klipper and Moonraker (an API that exposes Klipper) o
 ## As a pre-requisite, you'll need to install Ansible. 
 
 - Windows: You will need to use WSL, which is a bit annoying, and then you can follow the Linux path.
-- Linux: Your distro almost certainly packages it, but if not, you can use pip: `pip install ansible`
+- Linux: Use pip (`pip install ansible`) to install it -- your distro almost certainly packages it, but you have much less control.
 - Mac: Use homebrew: `brew install ansible`
 
 ## Initial install of Klipper and Moonraker
